@@ -10,6 +10,7 @@ import Meetings from './tabs/Meetings';
 import AccessRequests from './tabs/AccessRequests';
 import Reminders from './tabs/Reminders';
 import Settings from './tabs/Settings';
+import Todos from './tabs/Todos';
 import { Loader2 } from 'lucide-react';
 
 export default function App() {
@@ -67,6 +68,7 @@ export default function App() {
       case 'meetings': return <Meetings profile={profile} />;
       case 'access': return <AccessRequests profile={profile} />;
       case 'reminders': return <Reminders profile={profile} />;
+      case 'todos': return <Todos profile={profile} />;
       case 'settings': return <Settings profile={profile} />;
       default: return <Overview profile={profile} />;
     }

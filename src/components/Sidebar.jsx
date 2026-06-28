@@ -6,6 +6,7 @@ import {
   Calendar, 
   KeyRound, 
   Bell,
+  CheckSquare,
   Settings
 } from 'lucide-react';
 
@@ -17,6 +18,7 @@ export default function Sidebar({ activeTab, setActiveTab, role }) {
     { id: 'meetings', label: 'Meetings', icon: Calendar },
     { id: 'access', label: 'Access Requests', icon: KeyRound },
     { id: 'reminders', label: 'Reminders', icon: Bell },
+    { id: 'todos', label: 'To-Do List', icon: CheckSquare },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
