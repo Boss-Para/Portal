@@ -222,7 +222,7 @@ export default function Overview({ profile }) {
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <div style={{ flex: 1, height: '8px', backgroundColor: 'var(--color-border)', borderRadius: '4px', overflow: 'hidden' }}>
                   <div style={{ 
-                    width: \`\${isEditing ? editPhaseData.progress : phase.progress}%\`, 
+                    width: `${isEditing ? editPhaseData.progress : phase.progress}%`, 
                     height: '100%', 
                     backgroundColor: (isEditing ? editPhaseData.status : phase.status) === 'completed' ? 'var(--color-success)' : accentColor,
                     borderRadius: '4px',
@@ -268,10 +268,10 @@ export default function Overview({ profile }) {
         </div>
       </Card>
       
-      <style dangerouslySetInnerHTML={{__html: \`
+      <style dangerouslySetInnerHTML={{__html: `
         .spin { animation: spin 1s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
-      \`}} />
+      `}} />
     </div>
   );
 }
