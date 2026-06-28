@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 import Card from '../components/Card';
 import Badge from '../components/Badge';
 import { Loader2, Save, UserPlus } from 'lucide-react';
+import bcrypt from 'bcryptjs';
 
 export default function Settings({ profile }) {
   const [profiles, setProfiles] = useState([]);
@@ -26,7 +27,11 @@ export default function Settings({ profile }) {
     // Only fetch the current user's profile to prevent seeing others' passwords
     const { data, error } = await supabase.from('profiles').select('*').eq('id', profile.id);
     if (error) setError(error.message);
-    else setProfiles(data);
+    else {
+      // Clear out the password field so we don't display the raw hash to the user
+      const cleanProfiles = data.map(p => ({ ...p, newPassword: '' }));
+      setProfiles(cleanProfiles);
+    }
     setLoading(false);
   };
 
@@ -36,14 +41,25 @@ export default function Settings({ profile }) {
 
   const saveProfile = async (prof) => {
     setSavingId(prof.id);
+    
+    const updates = { username: prof.username };
+    
+    // Only update password if they typed a new one
+    if (prof.newPassword && prof.newPassword.trim().length > 0) {
+      updates.password = bcrypt.hashSync(prof.newPassword.trim(), 10);
+    }
+
     const { error } = await supabase
       .from('profiles')
-      .update({ username: prof.username, password: prof.password })
+      .update(updates)
       .eq('id', prof.id);
       
     if (error) setError(error.message);
     else {
       setError('');
+      // Clear the new password field after saving
+      handleUpdate(prof.id, 'newPassword', '');
+      alert('Settings saved successfully!');
     }
     setSavingId(null);
   };
@@ -53,10 +69,13 @@ export default function Settings({ profile }) {
     if (!isTeam) return;
     setCreatingUser(true);
     
+    // Hash password before inserting
+    const hashedPassword = bcrypt.hashSync(newUser.password.trim(), 10);
+    
     const { error: createError } = await supabase.from('profiles').insert([{
-      username: newUser.username,
-      password: newUser.password,
-      name: newUser.name,
+      username: newUser.username.trim(),
+      password: hashedPassword,
+      name: newUser.name.trim(),
       role: newUser.role
     }]);
 
@@ -78,7 +97,7 @@ export default function Settings({ profile }) {
       <div className="flex justify-between items-start">
         <div>
           <h1 className="text-2xl">Settings & Credentials</h1>
-          <p className="text-muted mt-2">Manage your login credentials.</p>
+          <p className="text-muted mt-2">Manage your login credentials securely.</p>
         </div>
         {isTeam && (
           <button className="btn btn-team" onClick={() => setShowAddUser(!showAddUser)}>
@@ -87,8 +106,8 @@ export default function Settings({ profile }) {
         )}
       </div>
       
-      <div style={{ padding: '12px', backgroundColor: 'rgba(239, 68, 68, 0.1)', color: 'var(--color-danger)', borderRadius: '8px', fontSize: '14px', fontWeight: 500 }}>
-        Warning: Plain-text credentials are in use. Changes made here will immediately affect login access.
+      <div style={{ padding: '12px', backgroundColor: 'rgba(16, 185, 129, 0.1)', color: 'var(--color-success)', borderRadius: '8px', fontSize: '14px', fontWeight: 500 }}>
+        Security Update: All passwords are now securely hashed.
       </div>
 
       {error && <div className="error-message">{error}</div>}
@@ -117,7 +136,7 @@ export default function Settings({ profile }) {
               </div>
               <div className="flex-col gap-2">
                 <label style={{ fontSize: '14px', fontWeight: 500 }}>Password</label>
-                <input required type="text" className="input-field" value={newUser.password} onChange={e => setNewUser({...newUser, password: e.target.value})} />
+                <input required type="password" className="input-field" value={newUser.password} onChange={e => setNewUser({...newUser, password: e.target.value})} />
               </div>
             </div>
             <button type="submit" disabled={creatingUser} className="btn btn-team mt-2" style={{ alignSelf: 'flex-start' }}>
@@ -146,12 +165,13 @@ export default function Settings({ profile }) {
             </div>
             
             <div className="flex-col gap-2">
-              <label style={{ fontSize: '14px', fontWeight: 500 }}>Your Password</label>
+              <label style={{ fontSize: '14px', fontWeight: 500 }}>New Password (leave blank to keep current)</label>
               <input 
-                type="text" 
+                type="password" 
                 className="input-field" 
-                value={p.password} 
-                onChange={(e) => handleUpdate(p.id, 'password', e.target.value)}
+                placeholder="Enter new password"
+                value={p.newPassword} 
+                onChange={(e) => handleUpdate(p.id, 'newPassword', e.target.value)}
               />
             </div>
 
