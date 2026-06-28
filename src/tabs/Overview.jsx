@@ -229,13 +229,10 @@ export default function Overview({ profile }) {
                     transition: 'width 0.3s'
                   }} />
                 </div>
-                {isEditing ? (
-                  <input type="number" min="0" max="100" className="input-field" style={{ width: '70px' }} value={editPhaseData.progress} onChange={e => setEditPhaseData({...editPhaseData, progress: parseInt(e.target.value) || 0})} />
-                ) : (
-                  <span style={{ fontSize: '14px', fontWeight: 600, width: '40px', textAlign: 'right' }}>
-                    {phase.progress}%
-                  </span>
-                )}
+                {/* Removed manual progress edit, progress is automated */}
+                <span style={{ fontSize: '14px', fontWeight: 600, width: '40px', textAlign: 'right' }}>
+                  {phase.progress}%
+                </span>
               </div>
             </Card>
           );
